@@ -1,12 +1,16 @@
 "use client"
+import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 
- export  const Count = () => {
-  const cartItems = useSelector((state: any) => state.cart.cartItems)
+export const Count = () => {
+  const cartItems = useSelector((state:any) => state.cart.cartItems)
+  const [mounted, setMounted] = useState(false)
 
-  return (
-    <div>
-       {cartItems.length}
-    </div>
-  )
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return null
+
+  return <span>{cartItems.length}</span>
 }
