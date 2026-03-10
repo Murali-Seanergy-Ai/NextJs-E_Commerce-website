@@ -10,10 +10,9 @@ interface ProductProps {
 
 export default function ProductCard({ products }: ProductProps) {
   const dispatch = useDispatch()
-  
-
+ 
   const handleAddToCart = (pro:any) => {
-    console.log(pro,"kk")
+  
     dispatch(addToCart(pro))
   }
 
