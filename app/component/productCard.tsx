@@ -1,7 +1,8 @@
 "use client"
 
-import { useDispatch } from "react-redux"
-import { addToCart } from "../redux/cartSlice"
+// import { useDispatch } from "react-redux"
+// import { addToCart } from "../redux/cartSlice"
+import { addToCart } from "../lib/getProducts"
 
 interface ProductProps {
   products: any
@@ -9,11 +10,12 @@ interface ProductProps {
 
 
 export default function ProductCard({ products }: ProductProps) {
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
  
   const handleAddToCart = (pro:any) => {
   
-    dispatch(addToCart(pro))
+    // dispatch(addToCart(pro))
+    addToCart(pro._id,1)
   }
 
   return (

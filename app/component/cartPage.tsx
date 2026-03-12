@@ -1,20 +1,35 @@
 "use client"
 
-import { useSelector, useDispatch } from "react-redux"
-import { removeFromCart,addToCart } from "../redux/cartSlice"
+// import { useSelector, useDispatch } from "react-redux"
+// import { removeFromCart,addToCart } from "../redux/cartSlice"
+import { getCartItems } from "../lib/getProducts"
+import { useEffect, useState } from "react"
 
 const CartItems = () => {
-   const cartItems = useSelector((state:any)=>state.cart.cartItems)
-   const dispatch = useDispatch()
+  const [cartItems, setCartItems] = useState<any[]>([])
+
   
-
-
-  const handleRemove = (id: number) => {
-    dispatch(removeFromCart({ id }))
+useEffect(() => {
+  const fetchCartItems = async () => {
+    try {   
+      const items = await getCartItems()
+      console.log("Fetched cart items:", items) // Debug log to check the fetched cart items
+      setCartItems(items)
+      
+    } catch (error) {
+      console.error("Error fetching cart items:", error)
+    }   
   }
-  const handleAdd = (item:any)=>{
-    dispatch(addToCart(item))
-  }
+
+  fetchCartItems()
+}, [])
+
+  // const handleRemove = (id: number) => {
+  //   dispatch(removeFromCart({ id }))
+  // }
+  // const handleAdd = (item:any)=>{
+  //   dispatch(addToCart(item))
+  // }
 
   if (cartItems.length === 0) {
     return <p className="p-4 text-center">Your cart is empty.</p>
@@ -36,7 +51,7 @@ const cartItemsTyped: CartItem[] = cartItems
 
       {cartItems.map((item: any) => (
         <div
-          key={item.id}
+          key={item._id}
           className=" shadow-md  flex items-center gap-4  rounded p-2"
         >
           {item.image && (
@@ -55,7 +70,7 @@ const cartItemsTyped: CartItem[] = cartItems
 
                     <button
                     className="px-3 py-1 bg-red-400 text-white hover:bg-red-500 transition"
-                     onClick={() => handleRemove(item.id)}
+                     
                     >
                     −
                     </button>
@@ -66,7 +81,7 @@ const cartItemsTyped: CartItem[] = cartItems
 
                     <button
                     className="px-3 py-1 bg-green-400 text-white hover:bg-green-500 transition"
-                    onClick={() => handleAdd(item)}
+
 
                     >
                     +

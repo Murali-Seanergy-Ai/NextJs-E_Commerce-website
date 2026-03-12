@@ -11,7 +11,7 @@ const navbar = () => {
    <nav className="bg-slate-500 p-4 ">
     <ul className='flex flex-row justify-between'>
       <li className='font-bold text-white p-2'>
-        Ur's Shopping 
+       <Link href='/'>Ur's Shopping </Link>  
       </li>
       <li>
         <input type="text" placeholder="Search..." className='block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6 rounded-lg'/>

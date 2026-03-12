@@ -11,29 +11,6 @@ import mongoose from "mongoose";
 
 // import { Pool } from "pg"
 
-// export const pool = new Pool({
-//   user: "postgres",
-//   host: "localhost",
-//   database: "MY-FIRST-PROJECT",
-//   password: "Murali123",
-//   port: 5432,
-// })
-
-// pool.connect()
-//   .then(() => console.log("Database connected successfully"))
-//   .catch(err => console.error("Database connection error:", err))
-
-
-// export  const   mongo = await  mongoose.connect('mongodb+srv://mural_sieanergy_ai:tizLiuu82AQ1YbMM@muraliseanergyai.us3ki5x.mongodb.net/?appName=MuraliSeanergyAI').then((res)=>{
-//   console.log("DB connected successfully")
-// }).catch((err)=>{
-//   console.log(err)
-// })
-
-
-
-
-
 let MONGO_URI = process.env.MONGODB_URI!
 console.log(MONGO_URI,"kk")
 
