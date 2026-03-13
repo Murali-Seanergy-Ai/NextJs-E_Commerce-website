@@ -7,6 +7,7 @@ export const RegisterController = async (request:NextRequest):Promise<Response> 
 try{
 
      const body = await request.json()
+   
     return RegisterService(body)
 
 }catch(err){

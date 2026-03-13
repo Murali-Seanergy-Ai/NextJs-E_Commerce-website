@@ -1,7 +1,27 @@
 import axios from "axios"
+import toast from "react-hot-toast"
 
 
+export const registerUser = async (data:any) => {
 
+  try{
+    const res = await axios.post(
+      "http://localhost:3000/api/auth-register",
+      data
+    )
+ console.log(res.data) // Debug log to check the response structure
+    return res.data
+  }catch(error:any){
+
+    const message =
+      error?.response?.data?.message ||
+      "Registration failed. Please try again."
+
+   
+
+    throw message
+  }
+}
 export const getProducts =  async () => {
   try{
     const res  = await axios.get('http://localhost:3000/api/products')
@@ -9,7 +29,7 @@ export const getProducts =  async () => {
     return res.data.Data
   }catch(error){
      console.error("Error fetching products:", error)
-    throw error
+   
   }
 }
 

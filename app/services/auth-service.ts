@@ -7,13 +7,14 @@ import User from "../models/user";
 
 export const RegisterService = async (body:any):Promise<Response> =>{
     try{
+       
         const {name,email,password} = body;
        if(!name || !email || !password){
         return NextResponse.json({message:"All fields are required"},{status:400})
        }    
        const existingUser = await User.findOne({email})
        if(existingUser){
-        return NextResponse.json({message:"User already exists"},{status:400})
+        return NextResponse.json({message:"User already exists"},{status:409})
        }
        const hashedPassword = await bcrypt.hash(password,10)
        const newUser = await User.create({name,email,password:hashedPassword})
