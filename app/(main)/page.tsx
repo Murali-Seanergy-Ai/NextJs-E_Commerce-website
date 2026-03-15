@@ -1,18 +1,7 @@
-
-
-import Image from "next/image";
-import {getProducts} from "../lib/getProducts"
-import ProductCard from "../component/productCard";
-
-
-export default  async function Home() {
-
-  
-    const products = await  getProducts()
-     
+export default function Home() {
   return (
-  <div className="bg-slate-400">
-    <ProductCard products={ products}/>
-</div>
+    <div>
+      <h1>Home Page</h1>
+    </div>
   );
 }
