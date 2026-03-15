@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import mongoose from "mongoose"
 import CartProducts from "../models/cart-products"
 import Products from "../models/products"
+import User from "../models/user"
+import { isValidToken } from "../helpers/verifyToken"
 
 
 
@@ -27,8 +29,10 @@ function parsePositiveInt(value: unknown, fallback: number) {
   return i
 }
 
-export const AddtoCartService = async (body: AddToCartBody): Promise<NextResponse> => {
+export const AddtoCartService = async (body: AddToCartBody,user:any): Promise<NextResponse> => {
     try {
+
+
              const quantity = parsePositiveInt(body.quantity, 1)
             if (!quantity) {
               return NextResponse.json(
@@ -41,6 +45,14 @@ export const AddtoCartService = async (body: AddToCartBody): Promise<NextRespons
             if (raw === undefined || raw === null || raw === "") {
               return NextResponse.json({ message: "productId is required" }, { status: 400 })
             }
+
+            const userExists = await User.findById(user._Id)
+            if(!userExists){
+              return NextResponse.json({message:"User not found"},{status:404})
+
+            }
+
+            
         
             // Validate the product id by actually finding it in the Products collection.
             // Accept either Mongo ObjectId string OR your numeric `products.id` field.
@@ -67,7 +79,8 @@ export const AddtoCartService = async (body: AddToCartBody): Promise<NextRespons
             // - If cart item exists (same productId), increment quantity via $inc.
             // - Otherwise insert a new document (upsert: true).
             const item = await CartProducts.findOneAndUpdate(
-              { productId: productDoc._id },
+             
+              { productId: productDoc._id ,user:userExists._id},
               { $inc: { quantity } },
               { new: true, upsert: true, setDefaultsOnInsert: true }
             )
@@ -83,10 +96,14 @@ export const AddtoCartService = async (body: AddToCartBody): Promise<NextRespons
 
 
  
-export const GetCartItemService = async (): Promise<NextResponse> => {
+export const GetCartItemService = async (user:any): Promise<NextResponse> => {
     try{
-        const cartItems = await CartProducts.find({}).populate("productId")
-      
+      const userExists = await User.findById(user._id)
+      if(!userExists){
+        return NextResponse.json({message:"User not found"},{status:404})
+      }
+        const cartItems = await CartProducts.find({user:userExists._id}).populate("productId")
+         console.log(cartItems,"Cart Products")
         return NextResponse.json({ message: "Success", data: cartItems }, { status: 200 })
 
     }catch(err){

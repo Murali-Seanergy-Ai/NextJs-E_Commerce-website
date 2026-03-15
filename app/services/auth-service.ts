@@ -3,8 +3,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import User from "../models/user";
 
-
-
 export const RegisterService = async (body:any):Promise<Response> =>{
     try{
        
@@ -13,6 +11,7 @@ export const RegisterService = async (body:any):Promise<Response> =>{
         return NextResponse.json({message:"All fields are required"},{status:400})
        }    
        const existingUser = await User.findOne({email})
+       console.log(existingUser,"j")
        if(existingUser){
         return NextResponse.json({message:"User already exists"},{status:409})
        }
@@ -24,11 +23,10 @@ export const RegisterService = async (body:any):Promise<Response> =>{
         return NextResponse.json({message:"Internal Server Error"},{status:500})
     }
 }
-
-
 export const LoginService = async (body:any):Promise<Response> =>{
     try{
         const {email,password} = body;
+       
          if(!email || !password){
         return NextResponse.json({message:"All fields are required"},{status:400})
        }
@@ -36,10 +34,13 @@ export const LoginService = async (body:any):Promise<Response> =>{
          if(!user){
             return NextResponse.json({message:"Invalid credentials"},{status:401})
          }
+         
             const isMatch = await bcrypt.compare(password,user.password)
+        console.log(await bcrypt.compare(password,user.password),"Murali")
             if(!isMatch){
                 return NextResponse.json({message:"Invalid credentials"},{status:401})
             }
+            
 
             const token = jwt.sign({
                 id : user._id,
@@ -47,7 +48,13 @@ export const LoginService = async (body:any):Promise<Response> =>{
                 email:user.email
                 },process.env.JWT_SECRET!,
                 {expiresIn:"1h" })
-                return NextResponse.json({message:"Login Successful",token},{status:201})
+                const response =  NextResponse.json({message:"Login Successful",token},{status:201})
+                response.cookies.set('token',token,{
+                httpOnly:true,
+                maxAge:60*60,
+                path:"/"
+                })
+                return response
     }catch(err){
         console.log(err)
         return NextResponse.json({message:"Internal Server Error"},{status:500})

@@ -4,6 +4,7 @@ import { connectDB } from "../../lib/dbconnection"
 import CartProducts from "../../models/cart-products"
 
 import { AddToCartController,GetCartItemsController } from "../../controllers/cart-controller"
+import {isValidToken} from "../../helpers/verifyToken"
 
 /**
  * POST /api/cart
@@ -21,7 +22,12 @@ import { AddToCartController,GetCartItemsController } from "../../controllers/ca
 export async function POST(request: NextRequest): Promise<Response> {
   try {
     await connectDB()
-    return AddToCartController(request)
+    
+      const user = isValidToken(request)
+             if(!user){
+                return NextResponse.json({message:"Unathorized"},{status:401})
+             }
+    return AddToCartController(request,user)
 
   } catch (err) {
     console.error(err)

@@ -2,6 +2,7 @@ import { NextRequest,NextResponse } from "next/server"
 import mongoose from "mongoose"
 import products from "../models/products"
 import { AddtoCartService ,GetCartItemService} from "../services/cart-service"
+import { isValidToken } from "../helpers/verifyToken"
 
 type AddToCartBody = {
   productId: string | number
@@ -11,8 +12,8 @@ type AddToCartBody = {
 export const AddToCartController = async (request: NextRequest): Promise<NextResponse> => {
     try {
          const body = (await request.json()) as AddToCartBody
-
-         return AddtoCartService(body)
+          const user = isValidToken(request)
+         return AddtoCartService(body,user)
  
 } catch (err) {
     console.error(err)
