@@ -6,7 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import {useForm} from "react-hook-form"
 import {loginApi} from "../../lib/getProducts"
 import toast from "react-hot-toast"
+import { useDispatch } from "react-redux"
+import { isLogin } from "../../redux/cartSlice"
 const Loginpage = () => {
+  const dispatch = useDispatch()
 
 
   const loginSchema = z.object({
@@ -27,9 +30,15 @@ const Loginpage = () => {
       console.log(data,"kk")
       await loginApi(data)
       toast.success('Login Successfull')
+      dispatch(isLogin("true"))
+      
+      setTimeout(() => {
+        toast.dismiss()
+      }, 2000)
       route.push("/home")
     }catch(err:any){
       toast.dismiss(toastLoading)
+      toast.dismiss()
       
       console.log(err)
       const message = err.message || "Login failed"

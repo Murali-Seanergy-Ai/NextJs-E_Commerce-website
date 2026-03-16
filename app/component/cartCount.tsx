@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 
 export const Count = () => {
-  const cartItems = useSelector((state:any) => state.cart.cartItems)
+  const cartItems = useSelector((state:any) => state.cart.cartItem || [])
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

@@ -20,33 +20,40 @@ type AddToCartBody = {
 
 
 
-function parsePositiveInt(value: unknown, fallback: number) {
-  if (value === undefined || value === null) return fallback
-  const n = typeof value === "string" ? Number(value) : (value as number)
-  if (!Number.isFinite(n)) return null
-  const i = Math.trunc(n)
-  if (i < 1) return null
-  return i
-}
+// function parsePositiveInt(value: unknown, fallback: number) {
+//   if (value === undefined || value === null) return fallback
+//   const n = typeof value === "string" ? Number(value) : (value as number)
+//   if (!Number.isFinite(n)) return null
+//   const i = Math.trunc(n)
+//   if (i < 1) return null
+//   return i
+// }
 
 export const AddtoCartService = async (body: AddToCartBody,user:any): Promise<NextResponse> => {
     try {
 
 
-             const quantity = parsePositiveInt(body.quantity, 1)
+             const quantity = body?.quantity
+             console.log(quantity,"Quantity in service") // Debug log to check the quantity value
+
             if (!quantity) {
               return NextResponse.json(
-                { message: "quantity must be a positive integer" },
+                { message: "quantity is required" },
                 { status: 400 }
               )
             }
+
+            
         
             const raw = body?.productId
+            
             if (raw === undefined || raw === null || raw === "") {
               return NextResponse.json({ message: "productId is required" }, { status: 400 })
             }
+            console.log(user,"User in service")
+            const userExists = await User.findById(user.id)
+            console.log(userExists,"User Exists")
 
-            const userExists = await User.findById(user._Id)
             if(!userExists){
               return NextResponse.json({message:"User not found"},{status:404})
 
@@ -74,17 +81,35 @@ export const AddtoCartService = async (body: AddToCartBody,user:any): Promise<Ne
             if (!productDoc) {
               return NextResponse.json({ message: "Product not found" }, { status: 404 })
             }
-        
+         
+            // Check if a cart item for the same product already exists for this user.
+                    const existingItem = await CartProducts.findOne({  productId: productDoc._id, user: userExists._id})
+                    if (existingItem) {
+                      const newQuantity = existingItem.quantity + quantity
+                      if (newQuantity <= 0) {
+
+                        await CartProducts.deleteOne({
+                          productId: productDoc._id,
+                          user: userExists._id
+                        })
+
+                        return NextResponse.json(
+                          { message: "Item removed from cart" },
+                          { status: 200 }
+                        )
+                      }
+
+                      }
+                    
             // Upsert pattern:
             // - If cart item exists (same productId), increment quantity via $inc.
             // - Otherwise insert a new document (upsert: true).
             const item = await CartProducts.findOneAndUpdate(
-             
-              { productId: productDoc._id ,user:userExists._id},
-              { $inc: { quantity } },
+              { productId: productDoc._id,user:userExists._id },
+              { $inc: { quantity },$set:{user:userExists._id} },
               { new: true, upsert: true, setDefaultsOnInsert: true }
             )
-          
+            console.log(item,"Cart Item")
             return NextResponse.json({ message: "Added to cart", data: item }, { status: 200 })
 
         } catch (err) {
@@ -93,21 +118,44 @@ export const AddtoCartService = async (body: AddToCartBody,user:any): Promise<Ne
           }
 
         }
-
-
- 
 export const GetCartItemService = async (user:any): Promise<NextResponse> => {
     try{
-      const userExists = await User.findById(user._id)
+      const userExists = await User.findById(user.id)
       if(!userExists){
         return NextResponse.json({message:"User not found"},{status:404})
       }
         const cartItems = await CartProducts.find({user:userExists._id}).populate("productId")
          console.log(cartItems,"Cart Products")
-        return NextResponse.json({ message: "Success", data: cartItems }, { status: 200 })
-
+        return NextResponse.json({ message: "Cart Items are successfully fetched", data: cartItems }, { status: 200 })
     }catch(err){
         console.log(err)
         return NextResponse.json({message:"Internal Server Error"},{status:500})
     }
+}
+
+
+export const RemoveCartItemService = async (cartItemId:string,user:any): Promise<NextResponse> => {
+  
+  try{
+    const userExists = await User.findById(user.id)  
+    console.log(userExists,"User Exists")     
+    if(!userExists){
+      return NextResponse.json({message:"User not found"},{status:404})
+    }      
+    if(!mongoose.Types.ObjectId.isValid(cartItemId)){
+      return NextResponse.json({message:"Invalid Cart Item Id"},{status:400})
+    }
+
+    const cartItem = await CartProducts.findOne({_id:cartItemId,user:userExists._id})
+    console.log(cartItem,"Cart Item to remove")
+    if(!cartItem){
+      return NextResponse.json({message:"Cart Item not found"},{status:404})
+    } 
+
+    await CartProducts.findByIdAndDelete(cartItemId)
+    return NextResponse.json({message:"Cart Item removed successfully"},{status:200})
+  }catch(err){
+    console.log(err)
+    return NextResponse.json({message:"Internal Server Error"},{status:500})
+  } 
 }

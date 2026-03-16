@@ -60,3 +60,15 @@ export const LoginService = async (body:any):Promise<Response> =>{
         return NextResponse.json({message:"Internal Server Error"},{status:500})
     }
 }
+
+
+export const LogOutService = async ():Promise<Response> =>{
+    try{
+        const response = NextResponse.json({message:"Logout Successful"},{status:200})
+        response.cookies.delete('token')
+        return response
+    }catch(err){
+        console.log(err)
+        return NextResponse.json({message:"Internal Server Error"},{status:500})
+    }   
+}

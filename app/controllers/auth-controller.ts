@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {RegisterService,LoginService} from "../services/auth-service"
+import {RegisterService,LoginService,LogOutService} from "../services/auth-service"
 
 
 
@@ -22,6 +22,16 @@ export const LoginController = async (request:NextRequest) =>{
         const body = await request.json()
 
   return LoginService(body)
+    }catch(err){
+        console.log(err)
+        return NextResponse.json({message:"Internal Server Error"},{status:500})
+    }
+}
+
+
+export const LogOutController = async () =>{
+    try{
+        return LogOutService()
     }catch(err){
         console.log(err)
         return NextResponse.json({message:"Internal Server Error"},{status:500})
