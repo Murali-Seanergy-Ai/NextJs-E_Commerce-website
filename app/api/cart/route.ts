@@ -6,6 +6,8 @@ import Products from "../../models/products"
 import { isValidToken } from "@/app/helpers/verifyToken"
 import { AddToCartController, GetCartItemsController ,RemoveCartItemController} from "@/app/controllers/cart-controller"
 
+
+// POST /api/cart - Add item to cart
 export async function POST(request: NextRequest): Promise<Response> {
   try {
     await connectDB()
@@ -23,7 +25,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 }
 
-
+// GET /api/cart - Get cart items
 export async function GET(request: NextRequest): Promise<Response> {
   try {
     await connectDB()

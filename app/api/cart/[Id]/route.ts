@@ -6,8 +6,7 @@ import { RemoveCartItemController } from "@/app/controllers/cart-controller"
 
 
 
-
-
+// DELETE /api/cart/:id - Remove item from cart
 export async function DELETE(request: NextRequest,{params}:{params:{id:string}} ): Promise<Response> {
   try {
     await connectDB()

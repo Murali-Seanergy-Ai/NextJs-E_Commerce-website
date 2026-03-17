@@ -5,7 +5,7 @@ import {connectDB} from "../../lib/dbconnection"
 import products from "../../models/products"
 
 
-
+// GET /api/products - Get all products
 export async function GET(request: NextRequest) {
   try {
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import Link from "next/link"
 import { ShoppingCart } from "lucide-react"
 import { toast } from "react-hot-toast"
@@ -8,11 +8,14 @@ import { logoutApi } from "../lib/getProducts"
 import { Count } from "./cartCount"
 import { useDispatch ,useSelector} from "react-redux"
 import { logOut } from "../redux/cartSlice"
+import ProductCard from "./productCard"
 
 
 const Navbar = () => {
 
   const [isLogin, setIsLogin] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [debounceTimeout, setDebounceTimeout] = useState<string>('')
   const dispatch = useDispatch()
   const loginState = useSelector((state: any) => state.cart.login)
 
@@ -20,6 +23,18 @@ const Navbar = () => {
     const loginStatus = localStorage.getItem("isLogin")
     setIsLogin(loginStatus)
   }, [])
+
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebounceTimeout(searchTerm)
+    }, 500) // Adjust the debounce delay as needed (e.g., 500ms)
+
+    return () => {
+      clearTimeout(timeout) // Clear the timeout if the component unmounts or searchTerm changes
+    }
+  },[searchTerm])
+
 
   const handleLogOut = async () => {
 
@@ -48,9 +63,12 @@ const Navbar = () => {
       console.log(message)
     }
   }
+ 
 
   return (
+    <>
     <nav className="bg-slate-500 p-4">
+      
       <ul className="flex flex-row justify-between">
 
         <li className="font-bold text-white p-2">
@@ -59,6 +77,8 @@ const Navbar = () => {
 
         <li>
           <input
+           value={searchTerm}
+           onChange={(e) => setSearchTerm(e.target.value)}
             type="text"
             placeholder="Search..."
             className="block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 rounded-lg"
@@ -94,6 +114,8 @@ const Navbar = () => {
 
       </ul>
     </nav>
+   
+    </>
   )
 }
 

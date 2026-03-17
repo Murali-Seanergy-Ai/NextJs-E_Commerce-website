@@ -4,7 +4,7 @@ import {RegisterController} from "../../controllers/auth-controller"
 
 import { connectDB } from "../../lib/dbconnection";
 
-
+// POST /api/auth-register - User registration
 export async  function POST(request:NextRequest):Promise<Response>{
     try{
         await connectDB()

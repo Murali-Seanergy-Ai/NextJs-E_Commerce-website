@@ -2,6 +2,9 @@ import {NextResponse,NextRequest} from "next/server"
 import { connectDB } from "../../lib/dbconnection"
 import { LoginController } from "../../controllers/auth-controller"
 
+
+
+// POST /api/auth-login - User login
 export async function POST(request:NextRequest):Promise<Response>{
     try{
         await connectDB()

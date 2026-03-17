@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { LogOutController } from "../../controllers/auth-controller"
 
+
+// POST /api/auth-logout - User logout
 export async function POST(request:Request){
     try{
         // Clear the token from localStorage

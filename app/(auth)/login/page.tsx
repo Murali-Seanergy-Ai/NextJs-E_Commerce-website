@@ -10,8 +10,6 @@ import { useDispatch } from "react-redux"
 import { isLogin } from "../../redux/cartSlice"
 const Loginpage = () => {
   const dispatch = useDispatch()
-
-
   const loginSchema = z.object({
     email:z.string().email(),
     password:z.string().min(6)
@@ -62,12 +60,9 @@ const Loginpage = () => {
        <button type='submit'  className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition" >
           Login
         </button>
-       
       </form>
-     
       <Link href='/register'><span><p className="text-green-600 font-2xl font-bold flex justify-end mt-1">Register here</p></span></Link>  
     </div>
-
    </div>
   )
 }

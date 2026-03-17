@@ -1,16 +1,24 @@
 "use client"
 
 import { useDispatch } from "react-redux"
+import { useState } from "react"
 import { addToCartItem } from "../redux/cartSlice"
 import { addToCart } from "../lib/getProducts"
 
-interface ProductProps {
-  products: any
+type ProductProps = {
+  products: any[]   // or your product type
+ 
+}
+
+type searchProps = {
+  debounceTerm:string
 }
 
 
-export default function ProductCard({ products }: ProductProps) {
+export default function ProductCard({ products}: ProductProps) {
+  
   const dispatch = useDispatch()
+  
  
   const handleAddToCart = (pro:any) => {
 
