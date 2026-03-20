@@ -1,8 +1,4 @@
 
-
-
-
-
 import { createSlice } from "@reduxjs/toolkit"
 
 interface CartItem {
@@ -10,18 +6,21 @@ interface CartItem {
   title: string
   price: number
   quantity: number
+  image?: string
 }
 
 interface CartState {
   cartItem: CartItem[],
   login: string,
-  logOut:string
+  logOut:string,
+  searchTerm:string
 }
 
 const initialState: CartState = {
   cartItem: [],
   login: "false",
-  logOut: "false"
+  logOut: "false",
+  searchTerm: ""
  
 }
 
@@ -48,20 +47,29 @@ const cartSlice = createSlice({
         state.cartItem = state.cartItem.filter(i => i.id !== action.payload.id)
       }
     },
+    // Guest-only: removes the cart line item entirely (not just decrement by 1).
+    removeEntireFromCart: (state, action) => {
+      state.cartItem = state.cartItem.filter(i => i.id !== action.payload.id)
+    },
     clearCart: (state) => {
       state.cartItem = []
     },
     isLogin: (state,action) => {
       console.log("Login action payload:", action.payload) // Debug log to check the payload
-      state.login = action.payload,
+      state.login = action.payload
       localStorage.setItem("isLogin", 'true')
-    } ,
+    },
     logOut: (state) => {
-      state.login = "false",
+      state.login = "false"
       localStorage.setItem("isLogin", 'false')
     },
+    searchInputbyUser: (state, action) => {
+      console.log(action.payload,"action.payload")
+      state.searchTerm = action.payload
+    }
   },
 })
 
-export const { addToCartItem, removeFromCart, clearCart, isLogin, logOut } = cartSlice.actions
-export default cartSlice.reducer
+export const {searchInputbyUser, addToCartItem, removeFromCart, removeEntireFromCart, clearCart, isLogin, logOut } = cartSlice.actions
+
+export default cartSlice.reducer;

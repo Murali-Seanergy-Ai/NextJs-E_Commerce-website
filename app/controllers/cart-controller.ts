@@ -9,7 +9,6 @@ type AddToCartBody = {
   productId: string | number
   quantity?: number
 }
-
 export const AddToCartController = async (request: NextRequest,user: any): Promise<NextResponse> => {
     try {
          const body = (await request.json()) as AddToCartBody
@@ -32,9 +31,10 @@ export const GetCartItemsController = async (request: NextRequest,user:any): Pro
 }
 
 
-export const RemoveCartItemController = async (id:any,user:any): Promise<NextResponse> => {
+export const RemoveCartItemController = async (request: NextRequest,user:any): Promise<NextResponse> => {
   try{
-         const cartItemId = id
+         const cartItemId = request.nextUrl.searchParams.get("id")
+         console.log(cartItemId,"ID")
          if(!cartItemId){
           return NextResponse.json({message:"Cart Item Id is required"},{status:400})
          }

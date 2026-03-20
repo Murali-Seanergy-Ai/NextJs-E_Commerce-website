@@ -49,4 +49,27 @@ export async function GET(request: NextRequest): Promise<Response> {
 }
 
 
+// DELETE /api/cart/:id - Remove item from cart
+export async function DELETE(request: NextRequest ): Promise<Response> {
+  try {
+    await connectDB()
+    const user = await isValidToken(request)
+    console.log(request,"User in delete route")
+  
+       if (user instanceof NextResponse) {
+      return user // Return the 401 response directly
+    }
+    if(!user){
+        return NextResponse.json({message:"Unathorized"},{status:401})
+    }
+    return RemoveCartItemController(request,user)
+  
+  }
+  catch (err) {
+    console.error(err)
+    return NextResponse.json({ message: "Server error" }, { status: 500 })
+  }
+}
+
+
 

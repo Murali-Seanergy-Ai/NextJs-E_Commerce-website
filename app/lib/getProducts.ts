@@ -47,7 +47,7 @@ export const logoutApi = async () => {
    
     return res.data
   }catch(error:any){
-    console.error("Error during logout:", error)
+    console.log("Error during logout:", error)
     const message = error?.response?.data?.message || "Logout failed. Please try again."
     throw new Error(message)
   }
@@ -55,14 +55,22 @@ export const logoutApi = async () => {
 
 
 
-export const getProducts =  async () => {
+export const getProducts =  async (search:any) => {
   try{
-    const res  = await api.get('/products')
+    const trimmed = typeof search === "string" ? search.trim() : ""
     
-    return res.data.Data
+    // API route is `app/api/search/route.ts` which reads query param: `?searchTerm=...`
+    // Always include the query param so it doesn't come through as `null`.
+    const res = await api.get(`/search?searchTerm=${trimmed}`)
+
+    // `app/api/products/route.ts` returns `Data`, while `app/api/search/route.ts` returns `data`.
+    return res.data.Data ?? res.data.data
  
-  }catch(error){
-     console.error("Error fetching products:", error)
+  }catch(error:any){
+    
+     console.log("Error fetching products:", error)
+     const message = error?.response?.message || "Failed to fetch products"
+     throw new Error(message)
    
   }
 }
@@ -77,7 +85,7 @@ export const addToCart = async (productId:string,quantity:number) => {
     console.log(res,"add to cart response")
     return res.data.data
   }catch(error){
-    console.error("Error adding to cart:", error)
+    console.log("Error adding to cart:", error)
     throw error
   }
 }
@@ -89,7 +97,7 @@ export const getCartItems = async () => {
     console.log(res,"get cart response")
     return res.data.data
   }catch(error:any){
-    console.error("Error fetching cart items:", error)
+    console.log("Error fetching cart items:", error)
     const  message = error?.response?.data?.message || "Failed to fetch cart items. Please try again." 
     throw new Error(message)
   } 
@@ -98,11 +106,11 @@ export const getCartItems = async () => {
 export const removeItemFromCart = async (Id:string) => {
   console.log(Id,"Item Id to remove") // Debug log to check the item ID being removed
   try{
-    const res = await api.delete(`/cart/${Id}`)
+    const res = await api.delete(`/cart?id=${Id}`)
     console.log(res,"remove from cart response")
     return res.data.data
   }catch(error:any){
-    console.error("Error removing item from cart:", error.message)
+    console.log("Error removing item from cart:", error.message)
     const message = error?.response?.data?.message || "Failed to remove item from cart. Please try again."  
     throw new Error(message)
   }

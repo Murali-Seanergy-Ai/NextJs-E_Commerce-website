@@ -1,183 +1,168 @@
 "use client"
 
-import { useSelector, useDispatch } from "react-redux"
-import { removeFromCart,addToCartItem } from "../redux/cartSlice"
-import { getCartItems,addToCart, removeItemFromCart } from "../lib/getProducts"
-
 import { useEffect, useState } from "react"
-
-
-
-
+import { useSelector, useDispatch } from "react-redux"
+import { removeFromCart, addToCartItem } from "../redux/cartSlice"
+import { getCartItems, addToCart, removeItemFromCart } from "../lib/getProducts"
+import toast from "react-hot-toast"
 
 const CartItems = () => {
-  
-  let [cartItems, setCartItems] = useState<any[]>([])
+  const [cartItems, setCartItems] = useState<any[]>([])
   const [isLoggedIn, setIsLoggedIn] = useState<string | null>("")
 
-  const {login, cartItem} = useSelector((state:any)=>state.cart)
+  const { cartItem } = useSelector((state: any) => state.cart)
   const dispatch = useDispatch()
 
-      useEffect(() => {
+  useEffect(() => {
     const loginStatus = localStorage.getItem("isLogin")
     setIsLoggedIn(loginStatus)
-    console.log("Login status from localStorage:", loginStatus) // Debug log to check the login status
   }, [])
 
+  const isUserLoggedIn = isLoggedIn === "true"
 
-useEffect(() => {
-  const fetchCartItems = async () => {
-    try {
-      if (isLoggedIn === "true") {
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      if (isUserLoggedIn) {
         const items = await getCartItems()
         setCartItems(items)
       }
-    } catch (error) {
-      console.error(error)
+    }
+    fetchCartItems()
+  }, [isUserLoggedIn])
+
+  //  Normalize
+  const normalizedCart = isUserLoggedIn
+    ? cartItems.map(item => ({
+        cartItemId: item._id,
+        id: item.productId._id,
+        image: item.productId.image,
+        title: item.productId.title,
+        price: item.productId.price,
+        quantity: item.quantity
+      }))
+    : cartItem.map((item: any) => ({
+        cartItemId: item.id,
+        id: item.id,
+        image: item.image,
+        title: item.title,
+        price: item.price,
+        quantity: item.quantity
+      }))
+
+  //  Correct empty check
+  if (normalizedCart.length === 0) {
+    return <p className="p-4 text-center">Your cart is empty.</p>
+  }
+
+  //  Increase
+  const IncreaseQuantity = async (item: any) => {
+    if (isUserLoggedIn) {
+      await addToCart(item.id, 1)
+      setCartItems(await getCartItems())
+    } else {
+      dispatch(addToCartItem(item))
     }
   }
 
-  fetchCartItems()
-}, [isLoggedIn])
-  if(isLoggedIn !== "true"){
-
-  const handleRemove = (id: number) => {
-    dispatch(removeFromCart({ id }))
+  //  Decrease
+  const DecreaseQuantity = async (item: any) => {
+    if (isUserLoggedIn) {
+      await addToCart(item.id, -1)
+      setCartItems(await getCartItems())
+    } else {
+      dispatch(removeFromCart({ id: item.id }))
+    }
   }
-  const handleAdd = (item:any)=>{
-    dispatch(addToCartItem(item))
+
+  //  Remove
+  const handleRemove = async (id: any) => {
+    if (isUserLoggedIn) {
+      await removeItemFromCart(id)
+      setCartItems(await getCartItems())
+      toast.error("Item removed from cart")
+    } else {
+      dispatch(removeFromCart({ id }))
+    }
   }
-  }
-  if (cartItems.length === 0) {
-    return <p className="p-4 text-center">Your cart is empty.</p>
 
-  }
-  type CartItem = {
-    id: number,
-    image: string,
-    title: string,
-    price: number,
-    quantity: number}
-
-
-const filteredCart = cartItems.map(item => ({
-  cartItemId: item._id, // Assuming the cart item has a unique _id field
-  id: item.productId._id,
-  image: item.productId.image,
-  title: item.productId.title,
-  price: item.productId.price,
-  quantity: item.quantity
-}));
-
-// Increase quantity for a cart item
-const IncreaseQuantity = async  (item:any) => {
-  try{
-
-    await addToCart(item.id, 1)
-  const items =  await getCartItems()
-  setCartItems(items)
-
-   console.log("Quantity increased for item:", item.id) // Debug log to check the item ID
-  }catch(error){
-    console.error("Error increasing quantity:", error)
-  }
-}
-// Decrease quantity for a cart item
-const DecreaseQuantity = async (item:any) => {
-  try{
-    await addToCart(item.id, -1)
-  const items =   await getCartItems()
-  setCartItems(items) 
-  }catch(error){
-    console.error("Error decreasing quantity:", error)
-  }
-}
-
-// Handle removing an item from the cart
-const handleRemove = async (id:any) => {
-  try{  
-    await removeItemFromCart(id) // Assuming this will remove the item from the cart
-  const items =   await getCartItems()
-  setCartItems(items) 
-  console.log("Item removed from cart:", id) // Debug log to check the removed item ID
-  return items
-  }catch(error){
-    console.error("Error removing item from cart:", error)
-  }
-}
-
-
-const cartItemsTyped: CartItem[] = filteredCart
-  const total = cartItemsTyped.reduce<number>((acc, item) => {
-  return acc + item.price * item.quantity
-}, 0)
+  const total = normalizedCart.reduce((acc: number, item: any) => {
+    return acc + item.price * item.quantity
+  }, 0)
 
   return (
-    <div className="space-y-4 p-4">
-        <div className='grid'>
+    <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <h1 className="text-2xl font-bold mb-6">🛒 Your Cart</h1>
 
-      {filteredCart.map((item: any) => (
-        <div className ="flex items-center justify-between gap-4 shadow-lg p-2" key={item.id}>
-           <div
-         
-          className="flex items-center gap-4  rounded p-2 "
-        >
-          {item.image && (
-            <img
-              src={item.image}
-              alt={item.title}
-              className="w-16 h-16 object-contain"
-            />
-          )}
-          <div className="flex-1">
-            <h2 className="font-semibold">{item.title}</h2>
-            <p>${item.price}</p>
-                <div className="flex items-center gap-4 mt-3">
+  <div className="space-y-4">
+    {normalizedCart.map((item: any) => (
+      <div
+        key={item.id}
+        className="flex items-center justify-between bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition"
+      >
+        {/* Left Section */}
+        <div className="flex gap-4 items-center">
+          <img
+            src={item.image}
+            className="w-20 h-30 object-cover rounded-lg border"
+          />
 
-                <div className="flex items-center border rounded-lg overflow-hidden shadow-sm">
+          <div>
+            <h2 className="font-semibold text-lg text-gray-800">
+              {item.title}
+            </h2>
+            <p className="text-green-600 font-medium">${item.price}</p>
 
-                    <button
-                    className="px-3 py-1 bg-red-400 text-white hover:bg-red-500 transition"
-                      onClick={()=>DecreaseQuantity(item)}
-                    >
-                    −
-                    </button>
+            {/* Quantity Controls */}
+            <div className="flex items-center gap-3 mt-3">
+              <button
+                onClick={() => DecreaseQuantity(item)}
+                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
+              >
+                −
+              </button>
 
-                    <span className="px-4 py-1 font-semibold text-gray-700">
-                    {item.quantity}
-                    </span>
+              <span className="font-semibold">{item.quantity}</span>
 
-                    <button
-                    className = "px-3 py-1 bg-green-400 text-white hover:bg-green-500 transition"
-
-                      onClick={()=>{IncreaseQuantity(item)}}
-                    >
-                    +
-                    </button>
-
-                </div>
-
-                </div>
+              <button
+                onClick={() => IncreaseQuantity(item)}
+                className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
+              >
+                +
+              </button>
+            </div>
           </div>
-         
         </div>
-        <div>
-          <button className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+
+        {/* Right Section */}
+        <div className="flex flex-col items-end gap-3">
+          <p className="font-semibold text-gray-700">
+            ${(item.price * item.quantity).toFixed(2)}
+          </p>
+
+          <button
             onClick={() => handleRemove(item.cartItemId)}
+            className="text-red-500 hover:text-red-700 font-medium"
           >
             Remove
           </button>
+        </div>
+      </div>
+    ))}
+  </div>
 
-        </div>
+  {/* Total Section */}
+  <div className="mt-8 bg-white p-4 rounded-xl shadow flex justify-between items-center">
+    <span className="text-lg font-semibold">Total</span>
+    <span className="text-xl font-bold text-green-600">
+      ${total.toFixed(2)}
+    </span>
+  </div>
 
-        </div>
-       
-      ))}
-        </div>
-        <div className="text-right font-bold text-lg">
-            Total: ${total.toFixed(2)}
-        </div>
-    </div>
+  {/* Checkout Button */}
+  <button className="w-full mt-6 bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition font-semibold">
+    Proceed to Checkout
+  </button>
+</div>
   )
 }
 

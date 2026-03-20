@@ -7,12 +7,13 @@ import { toast } from "react-hot-toast"
 import { logoutApi } from "../lib/getProducts"
 import { Count } from "./cartCount"
 import { useDispatch ,useSelector} from "react-redux"
-import { logOut } from "../redux/cartSlice"
-import ProductCard from "./productCard"
+import {searchInputbyUser,logOut} from "../redux/cartSlice"
+import Home from "../(main)/home/page"
+
+
 
 
 const Navbar = () => {
-
   const [isLogin, setIsLogin] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [debounceTimeout, setDebounceTimeout] = useState<string>('')
@@ -28,12 +29,18 @@ const Navbar = () => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDebounceTimeout(searchTerm)
+    
     }, 500) // Adjust the debounce delay as needed (e.g., 500ms)
 
     return () => {
       clearTimeout(timeout) // Clear the timeout if the component unmounts or searchTerm changes
     }
   },[searchTerm])
+
+  useEffect(() => {
+    console.log(debounceTimeout,"debounceTimeout")
+    dispatch(searchInputbyUser(debounceTimeout))
+  }, [debounceTimeout])
 
 
   const handleLogOut = async () => {
@@ -114,6 +121,7 @@ const Navbar = () => {
 
       </ul>
     </nav>
+   
    
     </>
   )

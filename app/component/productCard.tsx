@@ -1,44 +1,69 @@
 "use client"
 
 import { useDispatch } from "react-redux"
-import { useState } from "react"
+import { useState ,useEffect  } from "react"
 import { addToCartItem } from "../redux/cartSlice"
 import { addToCart } from "../lib/getProducts"
+import toast from "react-hot-toast"
+import { useSelector } from "react-redux"
+import { getProducts } from "../lib/getProducts"
 
-type ProductProps = {
+
+type ProductProps = { 
   products: any[]   // or your product type
+
  
 }
 
-type searchProps = {
-  debounceTerm:string
-}
-
-
-export default function ProductCard({ products}: ProductProps) {
+ export default function ProductCard() {
   
   const dispatch = useDispatch()
+  const [products, setProducts] = useState<any[]>([])
+  const searchTerm = useSelector((state: any) => state.cart.searchTerm)
+
   
  
-  const handleAddToCart = (pro:any) => {
+  const handleAddToCart = async  (pro:any) => {
 
   const isLoggedIn = localStorage.getItem("isLogin") === "true"
   if(isLoggedIn){
-    console.log("Adding to cart:", pro) // Debug log to check the product being added
-    addToCart(pro._id,1)
+    try{
+
+      console.log("Adding to cart:", pro) // Debug log to check the product being added
+     await  addToCart(pro._id,1)
+     toast.success('Item added into youCart')
+    }catch(err){
+      console.log(err)
+
+    }
   }else{
 
     dispatch(addToCartItem(pro))
   }
 }
+const fetchProducts = async () => {
+  try{
+    const products = await getProducts(searchTerm)
+    setProducts(products)
+  }catch(err){
+    console.log(err)
+  }
+}
+
+
+
+useEffect(() => {
+  fetchProducts()
+  }, [searchTerm]) 
 
 
   return (
+
     <div className=" border border-gray-200 rounded bg-white flex flex-col  p-4">
     
 
     <div className='grid sm:grid-cols-1 md:grid-cols-4 gap-4'>
- {products.map((product: any) => (
+ { products.length>0 ?  products.map((product: any) => (
       <div
         key={product.id}
         className="shadow-lg border border-gray-200 rounded bg-white 
@@ -67,9 +92,9 @@ export default function ProductCard({ products}: ProductProps) {
     </button>
   </div>
       </div>
-    ))}
+    )): <p className="text-gray-500 text-2xl font-bold text-center ">No products found</p>}
     </div>
-     
-    </div>
-  )
+        </div>
+    );
 }
+

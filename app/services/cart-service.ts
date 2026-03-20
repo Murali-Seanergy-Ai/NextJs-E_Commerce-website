@@ -42,11 +42,7 @@ export const AddtoCartService = async (body: AddToCartBody,user:any): Promise<Ne
                 { status: 400 }
               )
             }
-
-            
-        
             const raw = body?.productId
-            
             if (raw === undefined || raw === null || raw === "") {
               return NextResponse.json({ message: "productId is required" }, { status: 400 })
             }
@@ -125,7 +121,7 @@ export const GetCartItemService = async (user:any): Promise<NextResponse> => {
         return NextResponse.json({message:"User not found"},{status:404})
       }
         const cartItems = await CartProducts.find({user:userExists._id}).populate("productId")
-         console.log(cartItems,"Cart Products")
+
         return NextResponse.json({ message: "Cart Items are successfully fetched", data: cartItems }, { status: 200 })
     }catch(err){
         console.log(err)
@@ -138,7 +134,7 @@ export const RemoveCartItemService = async (cartItemId:string,user:any): Promise
   
   try{
     const userExists = await User.findById(user.id)  
-    console.log(userExists,"User Exists")     
+     
     if(!userExists){
       return NextResponse.json({message:"User not found"},{status:404})
     }      

@@ -1,5 +1,5 @@
-import CartItems from "../../component/cartPage"
 
+import CartItems from "../../component/cartPage"
 
 const cartPage = () => {
   return (

@@ -11,7 +11,6 @@ export const RegisterService = async (body:any):Promise<Response> =>{
         return NextResponse.json({message:"All fields are required"},{status:400})
        }    
        const existingUser = await User.findOne({email})
-       console.log(existingUser,"j")
        if(existingUser){
         return NextResponse.json({message:"User already exists"},{status:409})
        }

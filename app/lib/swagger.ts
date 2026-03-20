@@ -28,7 +28,7 @@ export const getApiDoc = async ()=>{
 
         },
         apis:[
-           path.join(process.cwd(), "app/api-doc/api/*.swagger.js")
+           path.join(process.cwd(), "app/api-docs/api/*.swagger.js")
         ]
 
     })
