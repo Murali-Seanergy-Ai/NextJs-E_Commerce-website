@@ -5,7 +5,6 @@ import User from "../models/user";
 
 export const RegisterService = async (body:any):Promise<Response> =>{
     try{
-       
         const {name,email,password} = body;
        if(!name || !email || !password){
         return NextResponse.json({message:"All fields are required"},{status:400})
