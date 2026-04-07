@@ -2,7 +2,12 @@ global:
   scrape_interval: 5s
 
 scrape_configs:
-  - job_name: "nextjs-app"
-    metrics_path: "/api/metrics"
+  - job_name: "prometheus" #This is the job name for the prometheus server
     static_configs:
-      - targets: ["app:3000"]
+      - targets: ["prometheus:9090"] #This is the target for the prometheus server  
+
+  # Optional: if your Next.js app exposes Prometheus metrics (e.g. /api/metrics), enable this.
+  # - job_name: "nextjs-app"
+  #   metrics_path: "/api/metrics"
+  #   static_configs:
+  #     - targets: ["app:3000"]

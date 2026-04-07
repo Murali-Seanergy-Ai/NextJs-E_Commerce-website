@@ -27,4 +27,6 @@ services:
     image: grafana/k6
     volumes:
       - ./k6:/scripts
-    command: run --out experimental-prometheus-rw=http://prometheus:9090/api/v1/write /scripts/login-test.js
+    environment:
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+    command: run -o experimental-prometheus-rw /scripts/login-test.js
