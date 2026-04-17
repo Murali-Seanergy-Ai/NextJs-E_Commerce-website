@@ -13,14 +13,17 @@ interface CartState {
   cartItem: CartItem[],
   login: string,
   logOut:string,
-  searchTerm:string
+  searchTerm:string,
+  cartCount: number
 }
 
 const initialState: CartState = {
   cartItem: [],
   login: "false",
   logOut: "false",
-  searchTerm: ""
+  searchTerm: "",
+  cartCount: 0
+
  
 }
 
@@ -41,7 +44,7 @@ const cartSlice = createSlice({
     },
     removeFromCart: (state, action) => {
       const item = state.cartItem.find(i => i.id === action.payload.id)
-      if (item && item.quantity >1 ) {
+      if (item &&  item.quantity >1 ) {
         item.quantity -= 1
       } else {
         state.cartItem = state.cartItem.filter(i => i.id !== action.payload.id)
@@ -66,10 +69,13 @@ const cartSlice = createSlice({
     searchInputbyUser: (state, action) => {
       console.log(action.payload,"action.payload")
       state.searchTerm = action.payload
+    },
+    handleCartCount: (state, action) => {
+      state.cartCount = action.payload
     }
   },
 })
 
-export const {searchInputbyUser, addToCartItem, removeFromCart, removeEntireFromCart, clearCart, isLogin, logOut } = cartSlice.actions
+export const {searchInputbyUser, addToCartItem, removeFromCart, removeEntireFromCart, clearCart, isLogin, logOut, handleCartCount } = cartSlice.actions
 
 export default cartSlice.reducer;

@@ -1,32 +1,32 @@
-services:
-  app:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    ports:
+services: #This is the main block where all containers are defined
+  app: #This is the container name for the application
+    build: #This is the build configuration for the container
+      context: . #This is the context for the container
+      dockerfile: docker/Dockerfile #This is the dockerfile for the container
+    ports: #This is the port mapping for the container
       - "3000:3000"
-    env_file:
+    env_file: #This is the environment file for the container
       - .env.local
 
-  prometheus:
+  prometheus: #This is the container name for the prometheus server
     image: prom/prometheus
-    command:
+    command: #This is the command for the prometheus server
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--web.enable-remote-write-receiver"
-    volumes:
+    volumes: #This is the volume mapping for the prometheus server
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
+    ports: #This is the port mapping for the prometheus server
       - "9090:9090"
 
-  grafana:
+  grafana: #This is the container name for the grafana server
     image: grafana/grafana
-    ports:
+    ports: #This is the port mapping for the grafana server
       - "3001:3000"
 
-  k6:
+  k6: #This is the container name for the k6 server
     image: grafana/k6
-    volumes:
+    volumes: #This is the volume mapping for the k6 server
       - ./k6:/scripts
-    environment:
+    environment: #This is the environment for the k6 server
       - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
-    command: run -o experimental-prometheus-rw /scripts/login-test.js
+    command: run -out experimental-prometheus-rw /scripts/login-test.js #This is the command for the k6 server

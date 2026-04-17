@@ -2,7 +2,7 @@
 
 import { useDispatch } from "react-redux"
 import { useState, useEffect } from "react"
-import { addToCartItem } from "../redux/cartSlice"
+import { addToCartItem,handleCartCount } from "../redux/cartSlice"
 import { addToCart } from "../lib/getProducts"
 import toast from "react-hot-toast"
 import { useSelector } from "react-redux"
@@ -31,6 +31,8 @@ export default function ProductCard() {
 
         console.log("Adding to cart:", pro) // Debug log to check the product being added
         await addToCart(pro._id, 1)
+        // Dispatch event to notify cart count component
+        window.dispatchEvent(new Event('cart-updated'))
         toast.success('Item added into youCart')
       } catch (err) {
         console.log(err)
@@ -39,6 +41,7 @@ export default function ProductCard() {
     } else {
 
       dispatch(addToCartItem(pro))
+      toast.success('Item added into youCart')
     }
   }
   const fetchProducts = async () => {

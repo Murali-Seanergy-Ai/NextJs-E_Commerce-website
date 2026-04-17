@@ -4,6 +4,7 @@ import { connectDB } from "../../lib/dbconnection"
 import CartProducts from "../../models/cart-products"
 import Products from "../../models/products"
 import { isValidToken } from "@/app/helpers/verifyToken"
+import fixCartIndexes from "./fix"
 import { AddToCartController, GetCartItemsController ,RemoveCartItemController} from "@/app/controllers/cart-controller"
 
 
@@ -11,6 +12,7 @@ import { AddToCartController, GetCartItemsController ,RemoveCartItemController} 
 export async function POST(request: NextRequest): Promise<Response> {
   try {
     await connectDB()
+    await fixCartIndexes()
       const user = await isValidToken(request)
          if (user instanceof NextResponse) {
       return user // Return the 401 response directly

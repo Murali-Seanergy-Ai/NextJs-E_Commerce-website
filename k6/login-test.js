@@ -13,66 +13,86 @@ function isOkStatus(status) {
   return status >= 200 && status < 300;
 }
 
-// ---------------- SETUP (REGISTER USERS) ----------------
+// ---------------- SETUP (CREATE EXACT USERS) ----------------
 export function setup() {
-  for (let i = 1; i <= 10; i++) {
-    const email = `user${i}@test.com`;
+  const users = [];
+  let i = 1;
+
+  while (users.length < 10) {
+    const email = `user${i}_${Date.now()}@test.com`;
 
     const res = http.post(
       `${BASE_URL}/api/auth-register`,
-      JSON.stringify({ name: "test", email, password: PASSWORD }),
+      JSON.stringify({
+        name: "test",
+        email,
+        password: PASSWORD,
+      }),
       {
         headers: { "Content-Type": "application/json" },
-        tags: { api: "auth_register" },   // ✅ TAG ADDED
+        tags: { api: "auth_register" },
       }
     );
 
-    if (!(isOkStatus(res.status) || res.status === 409)) {
-      console.error(`Register failed for ${email}: ${res.status}`);
+    if (isOkStatus(res.status)) {
+      users.push({ email });
+      console.log(`✅ User created: ${email}`);
+    } else {
+      console.error(`❌ Retry user: ${email} (${res.status})`);
     }
 
-    sleep(0.2);
+    i++;
+    sleep(0.2); // small delay to stabilize DB
   }
+
+  return users;
 }
 
 // ---------------- MAIN FLOW ----------------
-export default function () {
-  const email = `user${__VU}@test.com`;
+export default function (data) {
+  // Safe user mapping
+  const user = data[(__VU - 1) % data.length];
+  const email = user.email;
 
-  // LOGIN
+  // ---------------- LOGIN ----------------
   const loginRes = http.post(
     `${BASE_URL}/api/auth-login`,
     JSON.stringify({ email, password: PASSWORD }),
     {
       headers: { "Content-Type": "application/json" },
-      tags: { api: "auth_login" },   // ✅ TAG ADDED
+      tags: { api: "auth_login" },
     }
   );
 
   console.log(`VU${__VU} Login: ${loginRes.status}`);
 
   if (!isOkStatus(loginRes.status)) {
-    console.error(`VU${__VU} Login failed`);
+    console.error(`❌ Login failed VU${__VU}: ${loginRes.body}`);
     return;
   }
 
   const token = loginRes.json("token");
 
-  const headers = {
-    "Content-Type": "application/json",
-  };
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  if (!token) {
+    console.error(`❌ No token for VU${__VU}`);
+    return;
   }
 
-  // ADD TO CART
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+
+  // ---------------- ADD TO CART ----------------
   const addRes = http.post(
     `${BASE_URL}/api/cart`,
-    JSON.stringify({ productId: "69afbe8a03735244434806f1", quantity: 1 }),
+    JSON.stringify({
+      productId: "69afbe8a03735244434806f1",
+      quantity: 1,
+    }),
     {
       headers,
-      tags: { api: "add_to_cart" },   // ✅ ALREADY GOOD
+      tags: { api: "add_to_cart" },
     }
   );
 
@@ -82,23 +102,23 @@ export default function () {
 
   sleep(1);
 
-  // GET CART
+  // ---------------- GET CART ----------------
   const getRes = http.get(`${BASE_URL}/api/cart`, {
     headers,
-    tags: { api: "get_cart" },   // ✅ ALREADY GOOD
+    tags: { api: "get_cart" },
   });
 
   check(getRes, {
     "get cart success": (r) => r.status === 200,
   });
 
-  // LOGOUT
+  // ---------------- LOGOUT ----------------
   const logoutRes = http.post(
     `${BASE_URL}/api/auth-logout`,
     null,
     {
       headers,
-      tags: { api: "auth_logout" },   // ✅ TAG ADDED
+      tags: { api: "auth_logout" },
     }
   );
 

@@ -13,33 +13,47 @@ export const Count = () => {
   useEffect(() => {
     let login = localStorage.getItem("isLogin")
     setIsLoggedIn(login)
-  }, [isLoggedIn])
-  async function count() {
-    try {
-      if(isLoggedIn!== "true") return 
-      if (isLoggedIn === "true") {
+  }, [])
 
+  // Fetch cart count for logged-in users
+  async function fetchCartCount() {
+    try {
+      if (isLoggedIn === "true") {
         const count = await getCartItems()
-        console.log(count.length, "jj")
         setUserCart(count.length)
       } else {
         setUserCart(cartItems.length)
-
       }
-
     } catch (err) {
       console.log(err)
     }
   }
+
+  // Fetch on mount and when isLoggedIn changes
   useEffect(() => {
-    count()
+    fetchCartCount()
   }, [isLoggedIn])
 
-  console.log(userCart, "kkk")
+  // For guest users: sync with Redux cart state
+  useEffect(() => {
+    if (isLoggedIn !== "true") {
+      setUserCart(cartItems.length)
+    }
+  }, [cartItems, isLoggedIn])
+
+  // For logged-in users: re-fetch when cart count might have changed
+  // You can trigger this via a custom event or use a global state
+  useEffect(() => {
+    if (isLoggedIn === "true") {
+      // Listen for cart updates from other components
+      const handleCartUpdate = () => fetchCartCount()
+      window.addEventListener('cart-updated', handleCartUpdate)
+      return () => window.removeEventListener('cart-updated', handleCartUpdate)
+    }
+  }, [isLoggedIn])
 
   return (
     <>
-
       <p className="text-xs">{userCart}</p>
     </>
   )

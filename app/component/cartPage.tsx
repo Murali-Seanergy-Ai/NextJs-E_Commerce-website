@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useSelector, useDispatch } from "react-redux"
-import { removeFromCart, addToCartItem } from "../redux/cartSlice"
+import { removeFromCart, addToCartItem, handleCartCount } from "../redux/cartSlice"
 import { getCartItems, addToCart, removeItemFromCart } from "../lib/getProducts"
 import toast from "react-hot-toast"
 
@@ -36,6 +36,14 @@ const CartItems = () => {
   }, [isUserLoggedIn])
   console.log(cartItems,"Murali cart")
 
+  useEffect(() => {
+    if (!isUserLoggedIn) {
+     dispatch(handleCartCount(cartItem.length))
+    }else {
+      dispatch(handleCartCount(cartItems.length))
+    }
+  }, [cartItem.length, cartItems.length, dispatch, isUserLoggedIn])   
+
   //  Normalize
   const normalizedCart = isUserLoggedIn
     ? cartItems.map(item => ({
@@ -65,8 +73,11 @@ const CartItems = () => {
     if (isUserLoggedIn) {
       await addToCart(item.id, 1)
       setCartItems(await getCartItems())
+      window.dispatchEvent(new Event('cart-updated'))
+      toast.success('aswome! you increased the quantity')
     } else {
       dispatch(addToCartItem(item))
+       toast.success('Oh no! you increased the quantity without login, please login to save your cart items')
     }
   }
 
@@ -75,8 +86,11 @@ const CartItems = () => {
     if (isUserLoggedIn) {
       await addToCart(item.id, -1)
       setCartItems(await getCartItems())
+      window.dispatchEvent(new Event('cart-updated'))
+      toast.error('oh God! you decreased the quantity')
     } else {
       dispatch(removeFromCart({ id: item.id }))
+      toast.error('hey Guest user you decreased the quantity')
     }
   }
 
@@ -85,9 +99,12 @@ const CartItems = () => {
     if (isUserLoggedIn) {
       await removeItemFromCart(id)
       setCartItems(await getCartItems())
+      window.dispatchEvent(new Event('cart-updated'))
       toast.error("Item removed from cart")
     } else {
       dispatch(removeFromCart({ id }))
+      window.dispatchEvent(new Event('cart-updated'))
+      toast.error("Item removed from cart")
     }
   }
 

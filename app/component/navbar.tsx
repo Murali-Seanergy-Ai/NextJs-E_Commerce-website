@@ -14,7 +14,7 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [debounceTimeout, setDebounceTimeout] = useState<string>('')
   const dispatch = useDispatch();
-  const loginState = useSelector((state: any) => state.cart.login);
+  // const {login,cartCount} = useSelector((state: any) => state);
 
   useEffect(() => {
     const loginStatus = localStorage.getItem("isLogin")
@@ -49,6 +49,7 @@ const Navbar = () => {
 
       dispatch(logOut()) // update Redux state
       dispatch(clearCart())
+      window.dispatchEvent(new Event('cart-updated'))
 
       localStorage.removeItem("token")
       localStorage.setItem("isLogin", "false")
