@@ -2,7 +2,7 @@ import axios from "axios"
 import toast from "react-hot-toast"
 
 export const api = axios.create({
-  baseURL: "https://next-js-e-commerce-website-a0qe9bmk2-muralis-projects-945abe0a.vercel.app/api",
+  baseURL: process.env.BASE_URL ,
   withCredentials: true
 })
 

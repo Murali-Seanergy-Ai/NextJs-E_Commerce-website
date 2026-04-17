@@ -2,6 +2,8 @@ import { NextResponse,NextRequest } from "next/server"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import User from "../models/user";
+import { cookies } from "next/dist/server/request/cookies";
+
 
 export const RegisterService = async (body:any):Promise<Response> =>{
     try{
@@ -14,7 +16,9 @@ export const RegisterService = async (body:any):Promise<Response> =>{
         return NextResponse.json({message:"User already exists"},{status:409})
        }
        const hashedPassword = await bcrypt.hash(password,10)
+
        const newUser = await User.create({name,email,password:hashedPassword})
+
        return NextResponse.json({message:"User registered successfully",data:{id:newUser._id,name:newUser.name,email:newUser.email}},{status:201})
     }catch(err){
         console.log(err)
