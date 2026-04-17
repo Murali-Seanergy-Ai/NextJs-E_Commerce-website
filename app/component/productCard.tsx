@@ -36,7 +36,7 @@ export default function ProductCard() {
         toast.success('Item added into youCart')
       } catch (err) {
         console.log(err)
-
+        console.log(err)
       }
     } else {
 
